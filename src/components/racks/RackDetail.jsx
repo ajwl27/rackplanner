@@ -145,6 +145,9 @@ export function RackDetail({
   createRackVersion,
   canDropEquipment
 }) {
+  //  safety check
+  if (!rack) return null;
+
   const currentVersion = rack.versions[rack.activeVersion];
 
   const findFirstAvailablePosition = (equipment) => {
