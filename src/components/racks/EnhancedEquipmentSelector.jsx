@@ -18,6 +18,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Filter } from "lucide-react";
 import { initialEquipment } from '@/lib/constants';
 
+// Column definitions with fixed widths
+const columns = [
+  { key: 'name', header: 'Name', width: '20%' },
+  { key: 'category', header: 'Category', width: '15%' },
+  { key: 'status', header: 'Status', width: '12%' },
+  { key: 'size', header: 'Size', width: '10%' },
+  { key: 'width', header: 'Width', width: '10%' },
+  { key: 'power', header: 'Power', width: '12%' },
+  { key: 'owner', header: 'Owner', width: '15%' },
+  { key: 'actions', header: '', width: '6%' }
+];
+
 export default function EnhancedEquipmentSelector({ onAddEquipment }) {
   // Track which filters are active and their values
   const [activeFilters, setActiveFilters] = useState({
@@ -255,54 +267,67 @@ export default function EnhancedEquipmentSelector({ onAddEquipment }) {
       </div>
 
       <div className="border rounded-md">
-        <div className="overflow-hidden">
-          <Table>
-            <TableHeader className="sticky top-0 bg-white z-10">
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Size</TableHead>
-                <TableHead>Width</TableHead>
-                <TableHead>Power</TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead className="w-[100px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-          </Table>
-        </div>
-        <div className="overflow-auto max-h-[280px]">
-          <Table>
-            <TableBody>
-              {filteredEquipment.map((equipment) => (
-                <TableRow key={equipment.id}>
-                  <TableCell className="font-medium">{equipment.name}</TableCell>
-                  <TableCell>{equipment.category}</TableCell>
-                  <TableCell>
-                    <div className={`inline-flex px-2 py-1 rounded-full text-xs font-medium
-                      ${equipment.status === 'active' ? 'bg-green-100 text-green-800' : 
-                        equipment.status === 'obsolete' ? 'bg-red-100 text-red-800' : 
-                        'bg-blue-100 text-blue-800'}`}>
-                      {equipment.status}
-                    </div>
-                  </TableCell>
-                  <TableCell>{equipment.size}U</TableCell>
-                  <TableCell>{equipment.width}%</TableCell>
-                  <TableCell>{equipment.power}W</TableCell>
-                  <TableCell>{equipment.owner}</TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => onAddEquipment(equipment)}
-                    >
-                      Add
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="relative">
+          <div className="overflow-hidden">
+            <div className="overflow-auto max-h-[280px]">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow>
+                    {columns.map(column => (
+                      <TableHead 
+                        key={column.key}
+                        style={{ width: column.width }}
+                        className="bg-white"
+                      >
+                        {column.header}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEquipment.map((equipment) => (
+                    <TableRow key={equipment.id}>
+                      <TableCell className="font-medium" style={{ width: columns[0].width }}>
+                        {equipment.name}
+                      </TableCell>
+                      <TableCell style={{ width: columns[1].width }}>
+                        {equipment.category}
+                      </TableCell>
+                      <TableCell style={{ width: columns[2].width }}>
+                        <div className={`inline-flex px-2 py-1 rounded-full text-xs font-medium
+                          ${equipment.status === 'active' ? 'bg-green-100 text-green-800' : 
+                            equipment.status === 'obsolete' ? 'bg-red-100 text-red-800' : 
+                            'bg-blue-100 text-blue-800'}`}>
+                          {equipment.status}
+                        </div>
+                      </TableCell>
+                      <TableCell style={{ width: columns[3].width }}>
+                        {equipment.size}U
+                      </TableCell>
+                      <TableCell style={{ width: columns[4].width }}>
+                        {equipment.width}%
+                      </TableCell>
+                      <TableCell style={{ width: columns[5].width }}>
+                        {equipment.power}W
+                      </TableCell>
+                      <TableCell style={{ width: columns[6].width }}>
+                        {equipment.owner}
+                      </TableCell>
+                      <TableCell style={{ width: columns[7].width }}>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => onAddEquipment(equipment)}
+                        >
+                          Add
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

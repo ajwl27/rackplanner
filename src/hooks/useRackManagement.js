@@ -4,7 +4,7 @@ import { aircraftPositions } from '@/lib/constants';
 import { createEmptyRack } from '@/lib/utils/rack';
 
 export function useRackManagement() {
-  const [racks, setRacks] = useState([createEmptyRack("Aerosol Rack")]);
+  const [racks, setRacks] = useState([]);
   const [selectedRack, setSelectedRack] = useState(null);
   const [positions, setPositions] = useState(
     aircraftPositions.reduce((acc, pos) => ({ 
