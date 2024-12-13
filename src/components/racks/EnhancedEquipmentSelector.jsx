@@ -1,3 +1,4 @@
+// components/racks/EnhancedEquipmentSelector.jsx
 import { useState, useMemo } from "react";
 import {
   Table,

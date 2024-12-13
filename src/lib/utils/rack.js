@@ -1,3 +1,4 @@
+// lib/utils/rack.js
 export function createEmptyRack(name = "Untitled Rack", version = {
   name: "Initial",
   date: new Date().toISOString().split('T')[0]
@@ -5,12 +6,14 @@ export function createEmptyRack(name = "Untitled Rack", version = {
   return {
     id: `RACK_${Date.now()}`,
     name,
+    notes: "",  // Add this
     versions: [{
       id: `VERSION_${Date.now()}`,
       name: version.name,
       date: version.date,
-      leftSide: Array(19).fill().map(() => []),
-      rightSide: Array(19).fill().map(() => [])
+      notes: "",  // Add this
+      leftSide: Array(22).fill().map(() => []),
+      rightSide: Array(22).fill().map(() => [])
     }],
     activeVersion: 0
   };

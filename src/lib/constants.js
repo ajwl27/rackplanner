@@ -1,3 +1,4 @@
+//lib/constants.js
 const initialEquipment = [
   { 
     id: "SYS1", 

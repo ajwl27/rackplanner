@@ -1,3 +1,4 @@
+// hooks/useRackManagement.js
 "use client";
 import { useState } from 'react';
 import { aircraftPositions } from '@/lib/constants';

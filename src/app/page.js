@@ -1,3 +1,4 @@
+// app/page.js
 "use client";
 import React, { useState } from "react";
 import CabinLayout from "@/components/cabin/CabinLayout";
@@ -58,7 +59,7 @@ export default function RackPlanner() {
               const newSide = [...currentVersion[side]];
 
               for (let i = position; i < position + draggedItem.size; i++) {
-                if (i < 19) {
+                if (i < 22) {
                   newSide[i] = (newSide[i] || []).filter(
                     (item) => item.id !== draggedItem.id
                   );
@@ -88,7 +89,7 @@ export default function RackPlanner() {
     if (!currentVersion) return false;
 
     for (let i = position; i < position + equipment.size; i++) {
-      if (i >= 19) return false;
+      if (i >= 22) return false;
 
       const itemsAtPosition = Array.isArray(currentVersion[side][i])
         ? currentVersion[side][i]
@@ -134,7 +135,7 @@ export default function RackPlanner() {
             i < data.source.position + equipment.size;
             i++
           ) {
-            if (i < 19) {
+            if (i < 22) {
               newSourceSide[i] = (newSourceSide[i] || []).filter(
                 (item) => item.id !== equipment.id
               );

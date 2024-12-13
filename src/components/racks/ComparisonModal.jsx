@@ -1,3 +1,4 @@
+// components/racks/ComparisonModal.jsx
 "use client";
 import React from 'react';
 import { sortVersionsByDate } from '@/lib/utils/rack';

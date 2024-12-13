@@ -1,3 +1,4 @@
+// components/cabin/CabinLayout.jsx
 "use client";
 import React from 'react';
 import { aircraftPositions } from '@/lib/constants';

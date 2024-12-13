@@ -1,8 +1,13 @@
+// components/racks/RackDetail.jsx
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { RackEquipmentSelector } from './RackEquipmentSelector';
 import { ComparisonModal } from './ComparisonModal';
 import { sortVersionsByDate } from '@/lib/utils/rack';
+import { Button } from "@/components/ui/button";
+import { NotebookPen } from "lucide-react";
+import { NotesModal } from './NotesModal';
+
 
 function renderRackSide(rack, versionIndex, side, {
   isDragging,
@@ -20,7 +25,7 @@ function renderRackSide(rack, versionIndex, side, {
   const cells = [];
   let skipCount = 0;
 
-  for (let i = 0; i < 19; i++) {
+  for (let i = 0; i < 22; i++) {
     if (skipCount > 0) {
       skipCount--;
       continue;
@@ -52,8 +57,8 @@ function renderRackSide(rack, versionIndex, side, {
                 draggable
                 className={`h-full flex items-center cursor-grab active:cursor-grabbing overflow-hidden border-r last:border-r-0 ${
                   equipment.status === 'obsolete' ? 'bg-red-100 hover:bg-red-200' :
-                  equipment.status === 'planned' ? 'bg-green-100 hover:bg-green-200' : 
-                  'bg-blue-100 hover:bg-blue-200'
+                  equipment.status === 'planned' ? 'bg-blue-100 hover:bg-blue-200' : 
+                  'bg-green-100 hover:bg-green-200' 
                 }`}
                 style={{ 
                   width: `${equipment.width}%`,
@@ -75,7 +80,7 @@ function renderRackSide(rack, versionIndex, side, {
             ))}
           </div>
         ) : (
-          <div className="px-2 py-1">U{19 - i}</div>
+          <div className="px-2 py-1">U{22 - i}</div>
         )}
       </div>
     );
@@ -84,7 +89,7 @@ function renderRackSide(rack, versionIndex, side, {
 
     if (items.length > 0) {
       skipCount = maxSize - 1;
-      for (let j = 1; j < maxSize && i + j < 19; j++) {
+      for (let j = 1; j < maxSize && i + j < 22; j++) {
         version[side][i + j] = version[side][i];
       }
     }
@@ -101,7 +106,7 @@ function RackSides({ rack, versionIndex, dragHandlers }) {
         <div className="flex">
           <div
             className="flex flex-col justify-between pr-2 text-sm font-semibold text-gray-600 py-1"
-            style={{ height: "38rem" }}
+            style={{ height: "44rem" }}
           >
             <div>Top</div>
             <div>Bottom</div>
@@ -147,18 +152,36 @@ export function RackDetail({
 }) {
   //  safety check
   if (!rack) return null;
-
+  
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const currentVersion = rack.versions[rack.activeVersion];
 
   const findFirstAvailablePosition = (equipment) => {
     for (const side of ['leftSide', 'rightSide']) {
-      for (let i = 0; i < 19; i++) {
+      for (let i = 0; i < 22; i++) {
         if (canDropEquipment(rack.id, side, i, equipment)) {
           return { side, position: i };
         }
       }
     }
     return null;
+  };
+  const handleNotesUpdate = ({ rackNotes, versionNotes }) => {
+    setRacks(racks => racks.map(r => {
+      if (r.id === rack.id) {
+        const newVersions = [...r.versions];
+        newVersions[r.activeVersion] = {
+          ...newVersions[r.activeVersion],
+          notes: versionNotes
+        };
+        return {
+          ...r,
+          notes: rackNotes,
+          versions: newVersions
+        };
+      }
+      return r;
+    }));
   };
 
   const handleAddEquipment = (equipment) => {
@@ -191,15 +214,26 @@ export function RackDetail({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold">{rack.name}</h3>
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-bold">{rack.name}</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowNotesModal(true)}
+            className="flex items-center gap-2"
+          >
+            <NotebookPen className="h-4 w-4" />
+            Notes
+          </Button>
+        </div>
         <div className="flex items-center gap-4">
           <select
             className="p-2 border rounded"
             value={rack.activeVersion}
             onChange={(e) => {
               const newIndex = parseInt(e.target.value);
-              setRacks(racks => racks.map(r => 
-                r.id === rack.id 
+              setRacks(racks => racks.map(r =>
+                r.id === rack.id
                   ? { ...r, activeVersion: newIndex }
                   : r
               ));
@@ -216,7 +250,7 @@ export function RackDetail({
             onClick={() => {
               const name = prompt('Enter configuration name (e.g., AMP21):');
               if (!name) return;
-              const date = prompt('Enter configuration date (YYYY-MM):', 
+              const date = prompt('Enter configuration date (YYYY-MM):',
                 new Date().toISOString().split('-').slice(0, 2).join('-'));
               if (!date) return;
               createRackVersion(rack.id, name, date);
@@ -245,6 +279,14 @@ export function RackDetail({
         </div>
       </div>
 
+      <NotesModal
+        open={showNotesModal}
+        onOpenChange={setShowNotesModal}
+        rack={rack}
+        currentVersion={currentVersion}
+        onSave={handleNotesUpdate}
+      />
+
       {showComparisonModal && (
         <ComparisonModal
           rack={rack}
@@ -265,19 +307,18 @@ export function RackDetail({
           <div className="text-center font-bold mb-2">
             {currentVersion.name} ({currentVersion.date})
           </div>
-          <RackSides 
-            rack={rack} 
+          <RackSides
+            rack={rack}
             versionIndex={rack.activeVersion}
             dragHandlers={dragHandlers}
           />
         </div>
-
         {compareMode && comparedVersions[1] && (
           <div className="flex-1">
             <div className="text-center font-bold mb-2">
               {comparedVersions[1].name} ({comparedVersions[1].date})
             </div>
-            <RackSides 
+            <RackSides
               rack={rack}
               versionIndex={rack.versions.findIndex(v => v.id === comparedVersions[1].id)}
               dragHandlers={dragHandlers}

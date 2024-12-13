@@ -1,3 +1,4 @@
+// components/racks/RackEquipmentSelector.jsx
 "use client";
 import React, { useState } from 'react';
 import EnhancedEquipmentSelector from './EnhancedEquipmentSelector';

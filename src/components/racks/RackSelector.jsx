@@ -1,3 +1,4 @@
+// components/racks/RackSelector.jsx
 "use client";
 import React from 'react';
 import { createEmptyRack } from '@/lib/utils/rack';
