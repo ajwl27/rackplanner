@@ -1,27 +1,32 @@
 // components/racks/RackDetail.jsx
 "use client";
-import React, { useState } from 'react';
-import { RackEquipmentSelector } from './RackEquipmentSelector';
-import { ComparisonModal } from './ComparisonModal';
-import { sortVersionsByDate } from '@/lib/utils/rack';
+import React, { useState } from "react";
+import { RackEquipmentSelector } from "./RackEquipmentSelector";
+import { ComparisonModal } from "./ComparisonModal";
+import { sortVersionsByDate } from "@/lib/utils/rack";
 import { Button } from "@/components/ui/button";
-import { NotebookPen } from "lucide-react";
-import { NotesModal } from './NotesModal';
-
-
-function renderRackSide(rack, versionIndex, side, {
-  isDragging,
-  dragType,
-  draggedItem,
-  canDropEquipment, 
-  handleDragStart,
-  handleDragEnd,
-  handleEquipmentDrop
-}) {
+import { NotesModal } from "./NotesModal";
+import html2pdf from "html2pdf.js";
+import { createRoot } from "react-dom/client";
+import { Download, NotebookPen } from "lucide-react";
+import RackPDFView from './RackPDFView';
+function renderRackSide(
+  rack,
+  versionIndex,
+  side,
+  {
+    isDragging,
+    dragType,
+    draggedItem,
+    canDropEquipment,
+    handleDragStart,
+    handleDragEnd,
+    handleEquipmentDrop,
+  }
+) {
   const version = rack.versions[versionIndex];
   if (!version) return [];
-  
-  
+
   const cells = [];
   let skipCount = 0;
 
@@ -32,8 +37,10 @@ function renderRackSide(rack, versionIndex, side, {
     }
 
     const items = Array.isArray(version[side][i]) ? version[side][i] : [];
-    const isValidTarget = isDragging && dragType === 'equipment' && 
-                       canDropEquipment(rack.id, side, i, draggedItem);
+    const isValidTarget =
+      isDragging &&
+      dragType === "equipment" &&
+      canDropEquipment(rack.id, side, i, draggedItem);
 
     const maxSize = items.reduce((max, eq) => Math.max(max, eq.size), 1);
 
@@ -41,7 +48,7 @@ function renderRackSide(rack, versionIndex, side, {
       <div
         key={`${side}-${i}`}
         className={`border text-sm transition-colors ${
-          isValidTarget ? 'bg-green-100' : 'bg-gray-50'
+          isValidTarget ? "bg-green-100" : "bg-gray-50"
         }`}
         style={{ height: `${maxSize * 2}rem` }}
         onDragOver={(e) => {
@@ -56,21 +63,25 @@ function renderRackSide(rack, versionIndex, side, {
                 key={`${equipment.id}-${idx}`}
                 draggable
                 className={`h-full flex items-center cursor-grab active:cursor-grabbing overflow-hidden border-r last:border-r-0 ${
-                  equipment.status === 'obsolete' ? 'bg-red-100 hover:bg-red-200' :
-                  equipment.status === 'planned' ? 'bg-blue-100 hover:bg-blue-200' : 
-                  'bg-green-100 hover:bg-green-200' 
+                  equipment.status === "obsolete"
+                    ? "bg-red-100 hover:bg-red-200"
+                    : equipment.status === "planned"
+                    ? "bg-blue-100 hover:bg-blue-200"
+                    : "bg-green-100 hover:bg-green-200"
                 }`}
-                style={{ 
+                style={{
                   width: `${equipment.width}%`,
                   minWidth: `${equipment.width}%`,
                   flexShrink: 0,
                 }}
-                onDragStart={(e) => handleDragStart(e, equipment, 'equipment', { 
-                  rackId: rack.id, 
-                  side,
-                  position: i,
-                  versionIndex: rack.activeVersion
-                })}
+                onDragStart={(e) =>
+                  handleDragStart(e, equipment, "equipment", {
+                    rackId: rack.id,
+                    side,
+                    position: i,
+                    versionIndex: rack.activeVersion,
+                  })
+                }
                 onDragEnd={handleDragEnd}
               >
                 <div className="px-1 truncate text-xs w-full">
@@ -115,7 +126,7 @@ function RackSides({ rack, versionIndex, dragHandlers }) {
             <div className="flex flex-col">
               {renderRackSide(rack, versionIndex, "leftSide", {
                 ...dragHandlers,
-                canDropEquipment: dragHandlers.canDropEquipment
+                canDropEquipment: dragHandlers.canDropEquipment,
               })}
             </div>
           </div>
@@ -129,7 +140,7 @@ function RackSides({ rack, versionIndex, dragHandlers }) {
         <div className="flex flex-col">
           {renderRackSide(rack, versionIndex, "rightSide", {
             ...dragHandlers,
-            canDropEquipment: dragHandlers.canDropEquipment
+            canDropEquipment: dragHandlers.canDropEquipment,
           })}
         </div>
       </div>
@@ -148,16 +159,16 @@ export function RackDetail({
   dragHandlers,
   setRacks,
   createRackVersion,
-  canDropEquipment
+  canDropEquipment,
 }) {
   //  safety check
   if (!rack) return null;
-  
+
   const [showNotesModal, setShowNotesModal] = useState(false);
   const currentVersion = rack.versions[rack.activeVersion];
 
   const findFirstAvailablePosition = (equipment) => {
-    for (const side of ['leftSide', 'rightSide']) {
+    for (const side of ["leftSide", "rightSide"]) {
       for (let i = 0; i < 22; i++) {
         if (canDropEquipment(rack.id, side, i, equipment)) {
           return { side, position: i };
@@ -167,49 +178,92 @@ export function RackDetail({
     return null;
   };
   const handleNotesUpdate = ({ rackNotes, versionNotes }) => {
-    setRacks(racks => racks.map(r => {
-      if (r.id === rack.id) {
-        const newVersions = [...r.versions];
-        newVersions[r.activeVersion] = {
-          ...newVersions[r.activeVersion],
-          notes: versionNotes
-        };
-        return {
-          ...r,
-          notes: rackNotes,
-          versions: newVersions
-        };
-      }
-      return r;
-    }));
+    setRacks((racks) =>
+      racks.map((r) => {
+        if (r.id === rack.id) {
+          const newVersions = [...r.versions];
+          newVersions[r.activeVersion] = {
+            ...newVersions[r.activeVersion],
+            notes: versionNotes,
+          };
+          return {
+            ...r,
+            notes: rackNotes,
+            versions: newVersions,
+          };
+        }
+        return r;
+      })
+    );
   };
 
   const handleAddEquipment = (equipment) => {
     const position = findFirstAvailablePosition(equipment);
     if (!position) {
-      alert('No available space for this equipment in the rack');
+      alert("No available space for this equipment in the rack");
       return;
     }
 
-    setRacks(racks => racks.map(r => {
-      if (r.id === rack.id) {
-        const newVersions = [...r.versions];
-        const targetVersion = { ...newVersions[r.activeVersion] };
-        const newSide = [...targetVersion[position.side]];
-        
-        if (!Array.isArray(newSide[position.position])) {
-          newSide[position.position] = [];
+    setRacks((racks) =>
+      racks.map((r) => {
+        if (r.id === rack.id) {
+          const newVersions = [...r.versions];
+          const targetVersion = { ...newVersions[r.activeVersion] };
+          const newSide = [...targetVersion[position.side]];
+
+          if (!Array.isArray(newSide[position.position])) {
+            newSide[position.position] = [];
+          }
+
+          newSide[position.position] = [
+            ...newSide[position.position],
+            { ...equipment },
+          ];
+
+          targetVersion[position.side] = newSide;
+          newVersions[r.activeVersion] = targetVersion;
+          return { ...r, versions: newVersions };
         }
-        
-        newSide[position.position] = [...newSide[position.position], { ...equipment }];
-        
-        targetVersion[position.side] = newSide;
-        newVersions[r.activeVersion] = targetVersion;
-        return { ...r, versions: newVersions };
-      }
-      return r;
-    }));
+        return r;
+      })
+    );
   };
+  async function handlePDFGeneration() {
+    try {
+      const tempContainer = document.createElement("div");
+      tempContainer.style.width = "1100px";
+      document.body.appendChild(tempContainer);
+
+      // Create a new root for React rendering
+      const root = createRoot(tempContainer);
+
+      // Wait for the component to render
+      await new Promise((resolve) => {
+        root.render(
+          <RackPDFView rack={rack} versionIndex={rack.activeVersion} />
+        );
+        setTimeout(resolve, 100);
+      });
+
+      // PDF options
+      const opt = {
+        margin: 10,
+        filename: `${rack.name}_${currentVersion.name}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      };
+
+      // Generate and save the PDF
+      await html2pdf().set(opt).from(tempContainer).save();
+
+      // Cleanup
+      document.body.removeChild(tempContainer);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Error generating PDF. Please try again.");
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -225,6 +279,16 @@ export function RackDetail({
             <NotebookPen className="h-4 w-4" />
             Notes
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePDFGeneration}
+            className="flex items-center gap-2"
+            disabled={compareMode}
+          >
+            <Download className="h-4 w-4" />
+            Export PDF
+          </Button>
         </div>
         <div className="flex items-center gap-4">
           <select
@@ -232,11 +296,11 @@ export function RackDetail({
             value={rack.activeVersion}
             onChange={(e) => {
               const newIndex = parseInt(e.target.value);
-              setRacks(racks => racks.map(r =>
-                r.id === rack.id
-                  ? { ...r, activeVersion: newIndex }
-                  : r
-              ));
+              setRacks((racks) =>
+                racks.map((r) =>
+                  r.id === rack.id ? { ...r, activeVersion: newIndex } : r
+                )
+              );
             }}
             disabled={compareMode}
           >
@@ -248,10 +312,12 @@ export function RackDetail({
           </select>
           <button
             onClick={() => {
-              const name = prompt('Enter configuration name (e.g., AMP21):');
+              const name = prompt("Enter configuration name (e.g., AMP21):");
               if (!name) return;
-              const date = prompt('Enter configuration date (YYYY-MM):',
-                new Date().toISOString().split('-').slice(0, 2).join('-'));
+              const date = prompt(
+                "Enter configuration date (YYYY-MM):",
+                new Date().toISOString().split("-").slice(0, 2).join("-")
+              );
               if (!date) return;
               createRackVersion(rack.id, name, date);
             }}
@@ -270,11 +336,13 @@ export function RackDetail({
               }
             }}
             className={`px-3 py-2 rounded ${
-              compareMode ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              compareMode
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 hover:bg-gray-200"
             }`}
             disabled={rack.versions.length < 2}
           >
-            {compareMode ? 'Exit Comparison' : 'Compare Versions'}
+            {compareMode ? "Exit Comparison" : "Compare Versions"}
           </button>
         </div>
       </div>
@@ -300,7 +368,9 @@ export function RackDetail({
         />
       )}
 
-      {!compareMode && <RackEquipmentSelector onAddEquipment={handleAddEquipment} />}
+      {!compareMode && (
+        <RackEquipmentSelector onAddEquipment={handleAddEquipment} />
+      )}
 
       <div className="flex gap-4">
         <div className="flex-1">
@@ -320,7 +390,9 @@ export function RackDetail({
             </div>
             <RackSides
               rack={rack}
-              versionIndex={rack.versions.findIndex(v => v.id === comparedVersions[1].id)}
+              versionIndex={rack.versions.findIndex(
+                (v) => v.id === comparedVersions[1].id
+              )}
               dragHandlers={dragHandlers}
             />
           </div>
