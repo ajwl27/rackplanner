@@ -6,19 +6,18 @@ export function createEmptyRack(name = "Untitled Rack", version = {
   return {
     id: `RACK_${Date.now()}`,
     name,
-    notes: "",  // Add this
+    notes: "", // Rack-level notes
     versions: [{
       id: `VERSION_${Date.now()}`,
       name: version.name,
       date: version.date,
-      notes: "",  // Add this
+      notes: "", // Version-specific notes, now properly initialized
       leftSide: Array(22).fill().map(() => []),
       rightSide: Array(22).fill().map(() => [])
     }],
     activeVersion: 0
   };
 }
-
 export function sortVersionsByDate(versions) {
   return [...versions].sort((a, b) => {
     const dateA = new Date(a.date);

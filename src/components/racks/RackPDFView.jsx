@@ -30,7 +30,6 @@ const RackPDFView = ({ rack, versionIndex }) => {
 
   const equipment = getEquipmentList(rack, versionIndex);
 
-  // Function to render a single rack side
   const renderRackSide = (equipment, side) => {
     const sideEquipment = equipment.filter(e => e.side === side);
     const cells = [];
@@ -43,20 +42,31 @@ const RackPDFView = ({ rack, versionIndex }) => {
         cells.push(
           <div
             key={`${side}-${i}`}
-            className="border bg-gray-50 flex"
+            className="flex"
             style={{ 
               height: `${itemsAtPosition[0].size * 24}px`,
-              marginBottom: '1px'
+              marginBottom: '1px',
+              padding: '1px', // Add padding for outer border
+              background: '#f8f9fa' // Light gray background for occupied slots
             }}
           >
             {itemsAtPosition.map(item => (
               <div
                 key={item.id}
                 className="flex items-center overflow-hidden"
-                style={{ width: `${item.width}%` }}
+                style={{ 
+                  width: `${item.width}%`,
+                  background: getStatusBackground(item.status),
+                  border: '2px solid #666', // Stronger border
+                  borderRadius: '4px', // Slightly rounded corners
+                  margin: '1px', // Space between items
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)' // Subtle shadow for depth
+                }}
               >
-                <div className="p-1 text-xs">
-                  <span className="font-bold mr-1">{item.reference}</span>
+                <div className="p-1 text-xs font-medium w-full">
+                  <span className="inline-block font-bold mr-2 bg-white px-1 rounded border">
+                    {item.reference}
+                  </span>
                   {item.name}
                 </div>
               </div>
@@ -68,15 +78,33 @@ const RackPDFView = ({ rack, versionIndex }) => {
         cells.push(
           <div
             key={`${side}-${i}`}
-            className="border bg-gray-50"
-            style={{ height: '24px', marginBottom: '1px' }}
+            className="border border-gray-300"
+            style={{ 
+              height: '24px', 
+              marginBottom: '1px',
+              background: 'repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #f8f8f8 10px, #f8f8f8 20px)' // Hatching pattern for empty spaces
+            }}
           >
-            <div className="p-1 text-xs">U{position}</div>
+            <div className="p-1 text-xs font-medium text-gray-600">U{position}</div>
           </div>
         );
       }
     }
     return cells;
+  };
+
+  // Helper function to get background color based on status
+  const getStatusBackground = (status) => {
+    switch (status) {
+      case 'active':
+        return 'linear-gradient(45deg, #e6ffe6 25%, #d1ffd1 25%, #d1ffd1 50%, #e6ffe6 50%, #e6ffe6 75%, #d1ffd1 75%, #d1ffd1)';
+      case 'obsolete':
+        return 'linear-gradient(45deg, #ffe6e6 25%, #ffd1d1 25%, #ffd1d1 50%, #ffe6e6 50%, #ffe6e6 75%, #ffd1d1 75%, #ffd1d1)';
+      case 'planned':
+        return 'linear-gradient(45deg, #e6f0ff 25%, #d1e1ff 25%, #d1e1ff 50%, #e6f0ff 50%, #e6f0ff 75%, #d1e1ff 75%, #d1e1ff)';
+      default:
+        return '#ffffff';
+    }
   };
 
   return (

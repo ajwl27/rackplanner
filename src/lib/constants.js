@@ -8,37 +8,37 @@ const initialEquipment = [
     status: "active",
     category: "IT Hardware",
     power: 500,
-    owner: "IT Department"
+    owner: "FAAM"
   },
   { 
     id: "SYS2", 
-    name: "System 2", 
+    name: "Doppler Lidar", 
     size: 4, 
     width: 100, 
     status: "obsolete",
     category: "Science Instrument",
     power: 750,
-    owner: "Research Lab"
+    owner: "Manchester"
   },
   { 
     id: "SYS3", 
-    name: "New System", 
+    name: "Turbo Pump", 
     size: 2, 
     width: 100, 
     status: "planned",
     category: "Supporting Equipment",
     power: 300,
-    owner: "Operations"
+    owner: "FAAM"
   },
   { 
     id: "SYS4", 
     name: "Cooling Unit", 
-    size: 5, 
-    width: 100, 
+    size: 1, 
+    width: 50, 
     status: "active",
     category: "Supporting Equipment",
-    power: 1200,
-    owner: "Facilities"
+    power: 200,
+    owner: "York"
   },
   { 
     id: "SYS5", 
@@ -48,7 +48,7 @@ const initialEquipment = [
     status: "planned",
     category: "IT Hardware",
     power: 100,
-    owner: "IT Department"
+    owner: "FAAM"
   },
 ];
 

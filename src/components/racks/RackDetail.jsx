@@ -10,20 +10,17 @@ import html2pdf from "html2pdf.js";
 import { createRoot } from "react-dom/client";
 import { Download, NotebookPen } from "lucide-react";
 import RackPDFView from './RackPDFView';
-function renderRackSide(
-  rack,
-  versionIndex,
-  side,
-  {
-    isDragging,
-    dragType,
-    draggedItem,
-    canDropEquipment,
-    handleDragStart,
-    handleDragEnd,
-    handleEquipmentDrop,
-  }
-) {
+
+
+function renderRackSide(rack, versionIndex, side, {
+  isDragging,
+  dragType,
+  draggedItem,
+  canDropEquipment,
+  handleDragStart,
+  handleDragEnd,
+  handleEquipmentDrop
+}) {
   const version = rack.versions[versionIndex];
   if (!version) return [];
 
@@ -35,69 +32,61 @@ function renderRackSide(
       skipCount--;
       continue;
     }
-
     const items = Array.isArray(version[side][i]) ? version[side][i] : [];
-    const isValidTarget =
-      isDragging &&
-      dragType === "equipment" &&
-      canDropEquipment(rack.id, side, i, draggedItem);
-
+    const isValidTarget = isDragging && dragType === 'equipment' &&
+                       canDropEquipment(rack.id, side, i, draggedItem);
     const maxSize = items.reduce((max, eq) => Math.max(max, eq.size), 1);
-
     const cell = (
       <div
         key={`${side}-${i}`}
-        className={`border text-sm transition-colors ${
-          isValidTarget ? "bg-green-100" : "bg-gray-50"
+        className={`border ${
+          isValidTarget ? 'bg-green-100' : 'bg-gray-50'
         }`}
-        style={{ height: `${maxSize * 2}rem` }}
+        style={{ 
+          height: `${maxSize * 2}rem`,
+          background: items.length === 0 ? 'repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #f8f8f8 10px, #f8f8f8 20px)' : undefined
+        }}
         onDragOver={(e) => {
           if (isValidTarget) e.preventDefault();
         }}
         onDrop={(e) => handleEquipmentDrop(e, rack.id, side, i)}
       >
         {items.length > 0 ? (
-          <div className="flex h-full w-full overflow-hidden">
+          <div className="flex h-full w-full overflow-hidden p-0.5">
             {items.map((equipment, idx) => (
               <div
                 key={`${equipment.id}-${idx}`}
                 draggable
-                className={`h-full flex items-center cursor-grab active:cursor-grabbing overflow-hidden border-r last:border-r-0 ${
-                  equipment.status === "obsolete"
-                    ? "bg-red-100 hover:bg-red-200"
-                    : equipment.status === "planned"
-                    ? "bg-blue-100 hover:bg-blue-200"
-                    : "bg-green-100 hover:bg-green-200"
+                className={`h-full flex items-center cursor-grab active:cursor-grabbing overflow-hidden border-2 border-gray-400 rounded m-0.5 shadow-sm ${
+                  equipment.status === 'obsolete' ? 'bg-red-100 hover:bg-red-200' :
+                  equipment.status === 'planned' ? 'bg-blue-100 hover:bg-blue-200' :
+                  'bg-green-100 hover:bg-green-200'
                 }`}
                 style={{
                   width: `${equipment.width}%`,
                   minWidth: `${equipment.width}%`,
                   flexShrink: 0,
                 }}
-                onDragStart={(e) =>
-                  handleDragStart(e, equipment, "equipment", {
-                    rackId: rack.id,
-                    side,
-                    position: i,
-                    versionIndex: rack.activeVersion,
-                  })
-                }
+                onDragStart={(e) => handleDragStart(e, equipment, 'equipment', {
+                  rackId: rack.id,
+                  side,
+                  position: i,
+                  versionIndex: rack.activeVersion
+                })}
                 onDragEnd={handleDragEnd}
               >
-                <div className="px-1 truncate text-xs w-full">
+                <div className="px-2 py-1 truncate text-xs w-full font-medium">
                   {equipment.name}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="px-2 py-1">U{22 - i}</div>
+          <div className="px-2 py-1 text-xs text-gray-600 font-medium">U{22 - i}</div>
         )}
       </div>
     );
-
     cells.push(cell);
-
     if (items.length > 0) {
       skipCount = maxSize - 1;
       for (let j = 1; j < maxSize && i + j < 22; j++) {
@@ -105,10 +94,8 @@ function renderRackSide(
       }
     }
   }
-
   return cells;
 }
-
 function RackSides({ rack, versionIndex, dragHandlers }) {
   return (
     <div className="flex gap-4">
